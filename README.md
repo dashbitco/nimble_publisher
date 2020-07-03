@@ -104,7 +104,7 @@ Now, we are ready to define our `MyApp.Blog` with `NimblePublisher`:
 defmodule MyApp.Blog do
   use NimblePublisher,
     build: Post,
-    from: Application.app_dir(:my_app, "posts/**/*.md"),
+    from: "posts/**/*.md",
     as: :posts,
     highlighters: [:makeup_elixir, :makeup_erlang]
 
