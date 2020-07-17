@@ -12,6 +12,7 @@ defmodule NimblePublisherTest do
   alias NimblePublisherTest.Example
 
   setup do
+    File.rm_rf!("test/tmp")
     :code.purge(Example)
     :code.delete(Example)
     :ok
@@ -74,6 +75,35 @@ defmodule NimblePublisherTest do
     end
   end
 
+  test "does not require recompilation unless paths changed" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/syntax.md",
+        as: :highlights,
+        highlighters: [:makeup_elixir]
+    end
+
+    refute Example.__mix_recompile__?()
+  end
+
+  test "requires recompilation if paths change" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/tmp/**/*.md",
+        as: :highlights,
+        highlighters: [:makeup_elixir]
+    end
+
+    refute Example.__mix_recompile__?()
+
+    File.mkdir_p!("test/tmp")
+    File.write!("test/tmp/example.md", "done!")
+
+    assert Example.__mix_recompile__?()
+  end
+
   test "raises if missing separator" do
     assert_raise RuntimeError,
                  ~r/could not find separator --- in "test\/fixtures\/invalid.noseparator"/,
@@ -86,7 +116,6 @@ defmodule NimblePublisherTest do
                    end
                  end
   end
-
 
   test "raises if not a map" do
     assert_raise RuntimeError,

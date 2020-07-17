@@ -15,7 +15,7 @@ defmodule NimblePublisher do
       end
 
       def __mix_recompile__? do
-        unquote(from) |> Path.wildcard() |> Enum.sort() |> :erlang.md5() ==
+        unquote(from) |> Path.wildcard() |> Enum.sort() |> :erlang.md5() !=
           unquote(:erlang.md5(paths))
       end
 
