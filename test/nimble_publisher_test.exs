@@ -26,6 +26,7 @@ defmodule NimblePublisherTest do
         as: :examples
 
       assert [
+               %{filename: "crlf.md"},
                %{filename: "markdown.md"},
                %{filename: "nosyntax.md"},
                %{filename: "syntax.md"}

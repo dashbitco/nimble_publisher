@@ -70,7 +70,7 @@ defmodule NimblePublisher do
   end
 
   defp parse_contents(path, contents) do
-    case :binary.split(contents, "\n---\n") do
+    case :binary.split(contents, ["\n---\n", "\r\n---\r\n"]) do
       [_] ->
         {:error, "could not find separator --- in #{inspect(path)}"}
 
