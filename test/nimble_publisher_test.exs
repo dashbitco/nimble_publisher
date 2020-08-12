@@ -47,7 +47,7 @@ defmodule NimblePublisherTest do
       assert hd(@examples).attrs == %{hello: "world"}
 
       assert hd(@examples).body ==
-               "<p>\n  This is a markdown \n  <em>\n    document\n  </em>\n  .\n</p>\n"
+               "<p>\nThis is a markdown <em>document</em>.</p>\n"
     end
   end
 
@@ -60,6 +60,34 @@ defmodule NimblePublisherTest do
 
       assert hd(@examples).attrs == %{syntax: "nohighlight"}
       assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+    end
+  end
+
+  test "passes earmark options to earmark - smartypants off" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/nosyntax.md",
+        as: :examples,
+        earmark_opts: %Earmark.Options{smartypants: false}
+
+      assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+      assert hd(@examples).body =~ "And inline code: <code class=\"inline\">IO.puts &quot;syntax&quot;</code>"
+      assert hd(@examples).body =~ "&quot;Smartypants quotes without inline code&quot;"
+    end
+  end
+
+  test "passes earmark options to earmark - smartypants on" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/nosyntax.md",
+        as: :examples,
+        earmark_opts: %Earmark.Options{smartypants: true}
+
+      assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+      assert hd(@examples).body =~ "And inline code: <code class=\"inline\">IO.puts “syntax”</code>"
+      assert hd(@examples).body =~ "“Smartypants quotes without inline code”"
     end
   end
 

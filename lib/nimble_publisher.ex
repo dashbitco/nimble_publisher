@@ -30,6 +30,7 @@ defmodule NimblePublisher do
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
     highlighters = Keyword.get(opts, :highlighters, [])
+    earmark_opts = Keyword.get(opts, :earmark_opts, %Earmark.Options{})
 
     for highlighter <- highlighters do
       Application.ensure_all_started(highlighter)
@@ -40,7 +41,7 @@ defmodule NimblePublisher do
     entries =
       for path <- paths do
         {attrs, body} = parse_contents!(path, File.read!(path))
-        body = body |> Earmark.as_html!() |> NimblePublisher.Highlighter.highlight()
+        body = body |> Earmark.as_html!(earmark_opts) |> NimblePublisher.Highlighter.highlight()
         builder.build(path, attrs, body)
       end
 
