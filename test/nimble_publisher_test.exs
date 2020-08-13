@@ -69,7 +69,7 @@ defmodule NimblePublisherTest do
         build: Builder,
         from: "test/fixtures/nosyntax.md",
         as: :examples,
-        earmark_opts: %Earmark.Options{smartypants: false}
+        earmark_options: %Earmark.Options{smartypants: false}
 
       assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
@@ -86,7 +86,7 @@ defmodule NimblePublisherTest do
         build: Builder,
         from: "test/fixtures/nosyntax.md",
         as: :examples,
-        earmark_opts: %Earmark.Options{smartypants: true}
+        earmark_options: %Earmark.Options{smartypants: true}
 
       assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
 
