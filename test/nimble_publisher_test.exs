@@ -31,7 +31,7 @@ defmodule NimblePublisherTest do
                %{filename: "markdown.md"},
                %{filename: "nosyntax-with-lang.md"},
                %{filename: "nosyntax.md"},
-               %{filename: "syntax.md"},
+               %{filename: "syntax.md"}
              ] =
                @examples
                |> update_in([Access.all(), :filename], &Path.basename/1)
@@ -73,7 +73,9 @@ defmodule NimblePublisherTest do
         as: :examples
 
       assert hd(@examples).attrs == %{syntax: "nohighlight"}
-      assert hd(@examples).body =~ "<pre><code class=\"elixir\">IO.puts &quot;syntax&quot;</code></pre>"
+
+      assert hd(@examples).body =~
+               "<pre><code class=\"elixir\">IO.puts &quot;syntax&quot;</code></pre>"
     end
   end
 
