@@ -23,13 +23,15 @@ defmodule NimblePublisherTest do
       use NimblePublisher,
         build: Builder,
         from: "test/fixtures/**/*.md",
-        as: :examples
+        as: :examples,
+        highlighters: []
 
       assert [
                %{filename: "crlf.md"},
                %{filename: "markdown.md"},
+               %{filename: "nosyntax-with-lang.md"},
                %{filename: "nosyntax.md"},
-               %{filename: "syntax.md"}
+               %{filename: "syntax.md"},
              ] =
                @examples
                |> update_in([Access.all(), :filename], &Path.basename/1)
@@ -60,6 +62,18 @@ defmodule NimblePublisherTest do
 
       assert hd(@examples).attrs == %{syntax: "nohighlight"}
       assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+    end
+  end
+
+  test "handles code blocks with language" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/nosyntax-with-lang.md",
+        as: :examples
+
+      assert hd(@examples).attrs == %{syntax: "nohighlight"}
+      assert hd(@examples).body =~ "<pre><code class=\"elixir\">IO.puts &quot;syntax&quot;</code></pre>"
     end
   end
 

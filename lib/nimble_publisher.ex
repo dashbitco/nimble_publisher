@@ -41,7 +41,11 @@ defmodule NimblePublisher do
     entries =
       for path <- paths do
         {attrs, body} = parse_contents!(path, File.read!(path))
-        body = body |> Earmark.as_html!(earmark_opts) |> NimblePublisher.Highlighter.highlight()
+        body =
+          body
+          |> Earmark.as_html!(earmark_opts)
+          |> highlight(attrs)
+
         builder.build(path, attrs, body)
       end
 
@@ -86,4 +90,10 @@ defmodule NimblePublisher do
         end
     end
   end
+
+  # calls Highlighter.highlight/1 only when needed
+  defp highlight(html, %{syntax: "highlight"}) do
+    NimblePublisher.Highlighter.highlight(html)
+  end
+  defp highlight(html, _), do: html
 end
