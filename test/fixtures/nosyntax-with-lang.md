@@ -1,5 +1,5 @@
 %{
-  syntax: "nohighlight"
+  syntax: false
 }
 ---
 

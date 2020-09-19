@@ -72,7 +72,7 @@ defmodule NimblePublisherTest do
         from: "test/fixtures/nosyntax-with-lang.md",
         as: :examples
 
-      assert hd(@examples).attrs == %{syntax: "nohighlight"}
+      assert hd(@examples).attrs == %{syntax: false}
 
       assert hd(@examples).body =~
                "<pre><code class=\"elixir\">IO.puts &quot;syntax&quot;</code></pre>"
