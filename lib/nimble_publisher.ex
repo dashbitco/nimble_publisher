@@ -93,9 +93,9 @@ defmodule NimblePublisher do
   end
 
   # calls Highlighter.highlight/1 only when needed
-  defp highlight(html, %{syntax: "highlight"}) do
+  defp highlight(html, %{syntax: false}), do: html
+
+  defp highlight(html, _) do
     NimblePublisher.Highlighter.highlight(html)
   end
-
-  defp highlight(html, _), do: html
 end
