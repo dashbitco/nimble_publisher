@@ -161,6 +161,24 @@ def get_posts_by_tag!(tag) do
 end
 ```
 
+### Live reloading
+
+If you are using Phoenix, you can enable live reloading by simply telling Phoenix to watch the “posts” directory. Open up "config/dev.exs", search for `live_reload:` and add this to the list of patterns:
+
+```elixir
+live_reload: [
+  patterns: [
+    ...,
+    ~r"posts/*/.*(md)$"
+  ]
+]
+```
+
+## Learn more
+
+  * [Dashbit's blog post which was the foundation for NimblePublisher](https://dashbit.co/blog/welcome-to-our-blog-how-it-was-made)
+  * [Elixir School's lesson on using NimblePublisher, complete with Phoenix integration](https://elixirschool.com/en/lessons/libraries/nimble-publisher/)
+
 <!-- MDOC !-->
 
 ## Nimble*
