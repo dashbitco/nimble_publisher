@@ -10,7 +10,7 @@ code highlighting.
 ```elixir
 use NimblePublisher,
   build: Article,
-  from: "articles/**/*.md",
+  from: Application.app_dir(:app_name, "priv/articles/**/*.md"),
   as: :articles,
   highlighters: [:makeup_elixir, :makeup_erlang]
 ```
@@ -104,9 +104,11 @@ Now, we are ready to define our `MyApp.Blog` with `NimblePublisher`:
 
 ```elixir
 defmodule MyApp.Blog do
+  alias MyApp.Blog.Post
+
   use NimblePublisher,
     build: Post,
-    from: "posts/**/*.md",
+    from: Application.app_dir(:my_app, "priv/posts/**/*.md"),
     as: :posts,
     highlighters: [:makeup_elixir, :makeup_erlang]
 
