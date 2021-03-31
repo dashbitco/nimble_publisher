@@ -10,7 +10,7 @@ code highlighting.
 ```elixir
 use NimblePublisher,
   build: Article,
-  from: "articles/**/*.md",
+  from: Application.app_dir(:app_name, "priv/articles/**/*.md"),
   as: :articles,
   highlighters: [:makeup_elixir, :makeup_erlang]
 ```
@@ -49,6 +49,8 @@ Each article in the articles directory must have the format:
     `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
     You can replace `:vim_style` by any style of your choice
     [defined here](https://hexdocs.pm/makeup/Makeup.Styles.HTML.StyleMap.html).
+
+  * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
 ## Examples
 
@@ -102,9 +104,11 @@ Now, we are ready to define our `MyApp.Blog` with `NimblePublisher`:
 
 ```elixir
 defmodule MyApp.Blog do
+  alias MyApp.Blog.Post
+
   use NimblePublisher,
     build: Post,
-    from: "posts/**/*.md",
+    from: Application.app_dir(:my_app, "priv/posts/**/*.md"),
     as: :posts,
     highlighters: [:makeup_elixir, :makeup_erlang]
 
