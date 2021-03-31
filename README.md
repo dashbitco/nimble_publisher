@@ -50,6 +50,8 @@ Each article in the articles directory must have the format:
     You can replace `:vim_style` by any style of your choice
     [defined here](https://hexdocs.pm/makeup/Makeup.Styles.HTML.StyleMap.html).
 
+  * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
+
 ## Examples
 
 Let's see a complete example. First add `nimble_publisher` with
