@@ -29,19 +29,17 @@ defmodule NimblePublisher do
     builder = Keyword.fetch!(opts, :build)
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
-    highlighters = Keyword.get(opts, :highlighters, [])
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-
-    for highlighter <- highlighters do
-      Application.ensure_all_started(highlighter)
-    end
 
     paths = from |> Path.wildcard() |> Enum.sort()
 
     entries =
       for path <- paths do
         {attrs, body} = parse_contents!(path, File.read!(path))
-        body = body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
+        body =
+          path
+          |> Path.extname()
+          |> String.downcase()
+          |> convert_body(body, opts)
         builder.build(path, attrs, body)
       end
 
@@ -93,5 +91,20 @@ defmodule NimblePublisher do
              "expected attributes for #{inspect(path)} to return a map, got: #{inspect(other)}"}
         end
     end
+  end
+
+  defp convert_body(extname, body, opts) when extname in [".md", ".markdown"] do
+    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+    highlighters = Keyword.get(opts, :highlighters, [])
+
+    for highlighter <- highlighters do
+      Application.ensure_all_started(highlighter)
+    end
+
+    body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
+  end
+
+  defp convert_body(_extname, body, _opts) do
+    body
   end
 end

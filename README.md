@@ -39,7 +39,9 @@ Each article in the articles directory must have the format:
 
   * `:build` - the name of the module that will build each entry
 
-  * `:from` - a wildcard pattern where to find all entries
+  * `:from` - a wildcard pattern where to find all entries. use `Earmark` 
+    to convert to HTML only if the file extension is .md or .markdown. 
+    Other extensions will not be converted.
 
   * `:as` - the name of the module attribute to store all built entries
 

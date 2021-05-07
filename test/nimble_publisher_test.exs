@@ -37,17 +37,31 @@ defmodule NimblePublisherTest do
     end
   end
 
-  test "converts to markdown" do
+  test "convert to markdown." do
     defmodule Example do
       use NimblePublisher,
         build: Builder,
-        from: "test/fixtures/markdown.md",
+        from: "test/fixtures/markdown.{md,markdown}",
+        as: :examples
+
+      Enum.each(@examples, fn example ->
+        assert example.attrs == %{hello: "world"}
+        assert example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+      end)
+    end
+  end
+
+  test "Not converted" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/text.txt",
         as: :examples
 
       assert hd(@examples).attrs == %{hello: "world"}
 
       assert hd(@examples).body ==
-               "<p>\nThis is a markdown <em>document</em>.</p>\n"
+               "This is a normal text.\n"
     end
   end
 
