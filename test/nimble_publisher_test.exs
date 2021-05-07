@@ -37,7 +37,7 @@ defmodule NimblePublisherTest do
     end
   end
 
-  test "convert to markdown." do
+  test "converts to markdown" do
     defmodule Example do
       use NimblePublisher,
         build: Builder,
@@ -51,7 +51,7 @@ defmodule NimblePublisherTest do
     end
   end
 
-  test "Not converted" do
+  test "does not convert other extensions" do
     defmodule Example do
       use NimblePublisher,
         build: Builder,
