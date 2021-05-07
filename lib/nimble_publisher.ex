@@ -30,16 +30,22 @@ defmodule NimblePublisher do
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
 
+    for highlighter <- Keyword.get(opts, :highlighters, []) do
+      Application.ensure_all_started(highlighter)
+    end
+
     paths = from |> Path.wildcard() |> Enum.sort()
 
     entries =
       for path <- paths do
         {attrs, body} = parse_contents!(path, File.read!(path))
+
         body =
           path
           |> Path.extname()
           |> String.downcase()
           |> convert_body(body, opts)
+
         builder.build(path, attrs, body)
       end
 
@@ -96,11 +102,6 @@ defmodule NimblePublisher do
   defp convert_body(extname, body, opts) when extname in [".md", ".markdown"] do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
     highlighters = Keyword.get(opts, :highlighters, [])
-
-    for highlighter <- highlighters do
-      Application.ensure_all_started(highlighter)
-    end
-
     body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
   end
 
