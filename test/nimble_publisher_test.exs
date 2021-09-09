@@ -27,6 +27,7 @@ defmodule NimblePublisherTest do
 
       assert [
                %{filename: "crlf.md"},
+               %{filename: "keyvalue.md"},
                %{filename: "markdown.md"},
                %{filename: "nosyntax.md"},
                %{filename: "syntax.md"}
@@ -124,6 +125,23 @@ defmodule NimblePublisherTest do
     end
   end
 
+  test "properly parses key value attributes" do
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/keyvalue.md",
+        as: :highlights,
+        highlighters: [:makeup_elixir]
+
+      assert hd(@highlights).attrs == %{
+               description: "string: with separator",
+               hello: "world",
+               tags: "comma,separated,values",
+               multiple: "words in one line"
+             }
+    end
+  end
+
   test "does not require recompilation unless paths changed" do
     defmodule Example do
       use NimblePublisher,
@@ -166,7 +184,20 @@ defmodule NimblePublisherTest do
                  end
   end
 
-  test "raises if not a map" do
+  test "raises if invalid map" do
+    assert_raise RuntimeError,
+                 ~r/expected attributes for \"test\/fixtures\/invalid.map\" to return a map/,
+                 fn ->
+                   defmodule Example do
+                     use NimblePublisher,
+                       build: Builder,
+                       from: "test/fixtures/invalid.map",
+                       as: :example
+                   end
+                 end
+  end
+
+  test "raises if not key value pairs" do
     assert_raise RuntimeError,
                  ~r/expected attributes for \"test\/fixtures\/invalid.nomap\" to return a map/,
                  fn ->

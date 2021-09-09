@@ -84,6 +84,17 @@ A typical blog post will look like this:
     ---
     This is the post.
 
+You can also use key key value pairs, but then you need to parse the values
+that are not strings in your code like tags in this example
+
+    # /posts/2020/04-17-hello-world.md
+      title: Hello world!
+      author: José Valim
+      tags: hello,world
+      description: Let's learn how to say hello world
+    ---
+    This is the post.
+
 Therefore, we will define a Post struct that expects all of the fields
 above. We will also have a `:date` field that we will build from the
 filename. Overall, it will look like this:

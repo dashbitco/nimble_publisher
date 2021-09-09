@@ -70,7 +70,8 @@ defmodule NimblePublisher do
         raise """
         #{message}
 
-        Each entry must have a map with attributes, followed by --- and a body. For example:
+        Each entry must have a map with attributes or key/value pairs,
+        followed by --- and a body. For example:
 
             %{
               title: "Hello World"
@@ -78,6 +79,9 @@ defmodule NimblePublisher do
             ---
             Hello world!
 
+            title: Hello World
+            ---
+            Hello world!
         """
     end
   end
@@ -88,14 +92,44 @@ defmodule NimblePublisher do
         {:error, "could not find separator --- in #{inspect(path)}"}
 
       [code, body] ->
-        case Code.eval_string(code, []) do
-          {%{} = attrs, _} ->
+        case convert_attrs(code) do
+          {:ok, attrs} ->
             {:ok, attrs, body}
 
-          {other, _} ->
+          {:error, error} ->
             {:error,
-             "expected attributes for #{inspect(path)} to return a map, got: #{inspect(other)}"}
+             "expected attributes for #{inspect(path)} to return a map, got:\n #{inspect(error)}"}
         end
+    end
+  end
+
+  defp convert_attrs("%{" <> _ = code) do
+    try do
+      case Code.eval_string(code, []) do
+        {%{} = attrs, _} ->
+          {:ok, attrs}
+
+        {other, _} ->
+          {:error, other}
+      end
+    rescue
+      _ -> {:error, "expected map or key value pairs in 'aaa: bbb' format"}
+    end
+  end
+
+  defp convert_attrs(code) do
+    try do
+      attrs =
+        code
+        |> String.split("\n", trim: true)
+        |> Enum.reduce(%{}, fn line, acc ->
+          [key, value] = String.split(line, ":", parts: 2)
+          Map.put(acc, String.to_atom(key), String.trim(value))
+        end)
+
+      {:ok, attrs}
+    rescue
+      _ -> {:error, "expected map or key value pairs in 'aaa: bbb' format"}
     end
   end
 
