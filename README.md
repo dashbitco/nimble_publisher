@@ -39,7 +39,9 @@ Each article in the articles directory must have the format:
 
   * `:build` - the name of the module that will build each entry
 
-  * `:from` - a wildcard pattern where to find all entries
+  * `:from` - a wildcard pattern where to find all entries. Files with the
+    `.md` or `.markdown` extension will be converted to Markdown with
+    `Earmark`. Other files will be kept as is.
 
   * `:as` - the name of the module attribute to store all built entries
 
@@ -164,6 +166,26 @@ def get_posts_by_tag!(tag) do
   end
 end
 ```
+
+### Custom parser
+
+You may want to define a custom function to parse the content of your files.
+
+```elixir
+  use NimblePublisher,
+    ...
+    page_parser: &Parser.parse/2,
+
+defmodule Parser do
+  def parse(path, contents) do
+    [attrs, body] = :binary.split(contents, ["\n---\n"])
+    {Jason.decode!(attrs), body}
+  end
+end
+```
+
+The function gets the path to the current parsed file and the file content as params
+It needs to return a tuple with a map of attributes and the body as a string.
 
 ### Live reloading
 
