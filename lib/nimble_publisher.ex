@@ -29,7 +29,7 @@ defmodule NimblePublisher do
     builder = Keyword.fetch!(opts, :build)
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
-    parser_fn = Keyword.get(opts, :page_parser)
+    parser_fn = Keyword.get(opts, :parser)
 
     for highlighter <- Keyword.get(opts, :highlighters, []) do
       Application.ensure_all_started(highlighter)

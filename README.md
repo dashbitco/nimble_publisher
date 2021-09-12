@@ -54,7 +54,7 @@ Each article in the articles directory must have the format:
 
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
-  * :page_parser - custom function with arity 2 that gets the file path
+  * :parser - custom function with arity 2 that gets the file path
     and content as params. It must return a 2 element tuple with attributes
     and body
 
@@ -178,7 +178,7 @@ You may want to define a custom function to parse the content of your files.
 ```elixir
   use NimblePublisher,
     ...
-    page_parser: &Parser.parse/2,
+    parser: &Parser.parse/2,
 
 defmodule Parser do
   def parse(path, contents) do

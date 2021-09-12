@@ -173,7 +173,7 @@ defmodule NimblePublisherTest do
         build: Builder,
         from: "test/fixtures/custom.parser",
         as: :custom,
-        page_parser: &Parser.parse/2
+        parser: &Parser.parse/2
 
       assert hd(@custom).body == "BODY\n"
       assert hd(@custom).attrs == %{path: "test/fixtures/custom.parser", length: 5}
