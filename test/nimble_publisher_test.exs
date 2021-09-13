@@ -153,6 +153,33 @@ defmodule NimblePublisherTest do
     assert Example.__mix_recompile__?()
   end
 
+  test "allows for custom page parsing function" do
+    defmodule Parser do
+      def parse(path, content) do
+        body =
+          content
+          |> :binary.split("\nxxx\n")
+          |> List.last()
+          |> String.upcase()
+
+        attrs = %{path: path, length: String.length(body)}
+
+        {attrs, body}
+      end
+    end
+
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/custom.parser",
+        as: :custom,
+        parser: Parser
+
+      assert hd(@custom).body == "BODY\n"
+      assert hd(@custom).attrs == %{path: "test/fixtures/custom.parser", length: 5}
+    end
+  end
+
   test "raises if missing separator" do
     assert_raise RuntimeError,
                  ~r/could not find separator --- in "test\/fixtures\/invalid.noseparator"/,

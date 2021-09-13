@@ -54,6 +54,9 @@ Each article in the articles directory must have the format:
 
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
+  * `:parser` - custom module with a `parse/2` function that receives the file path
+    and content as params. It must return a 2 element tuple with attributes and body.
+
 ## Examples
 
 Let's see a complete example. First add `nimble_publisher` with
@@ -166,6 +169,26 @@ def get_posts_by_tag!(tag) do
   end
 end
 ```
+
+### Custom parser
+
+You may want to define a custom function to parse the content of your files.
+
+```elixir
+  use NimblePublisher,
+    ...
+    parser: Parser,
+
+defmodule Parser do
+  def parse(path, contents) do
+    [attrs, body] = :binary.split(contents, ["\n---\n"])
+    {Jason.decode!(attrs), body}
+  end
+end
+```
+
+The `parse/2` function from this module receives the file path and content as params.
+It must return a 2 element tuple with attributes and body.
 
 ### Live reloading
 
