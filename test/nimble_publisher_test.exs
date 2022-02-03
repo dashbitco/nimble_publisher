@@ -77,40 +77,6 @@ defmodule NimblePublisherTest do
     end
   end
 
-  test "passes earmark options to earmark - smartypants off" do
-    defmodule Example do
-      use NimblePublisher,
-        build: Builder,
-        from: "test/fixtures/nosyntax.md",
-        as: :examples,
-        earmark_options: %Earmark.Options{smartypants: false}
-
-      assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
-
-      assert hd(@examples).body =~
-               "And inline code: <code class=\"inline\">IO.puts &quot;syntax&quot;</code>"
-
-      assert hd(@examples).body =~ "&quot;Smartypants quotes without inline code&quot;"
-    end
-  end
-
-  test "passes earmark options to earmark - smartypants on" do
-    defmodule Example do
-      use NimblePublisher,
-        build: Builder,
-        from: "test/fixtures/nosyntax.md",
-        as: :examples,
-        earmark_options: %Earmark.Options{smartypants: true}
-
-      assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
-
-      assert hd(@examples).body =~
-               "And inline code: <code class=\"inline\">IO.puts “syntax”</code>"
-
-      assert hd(@examples).body =~ "“Smartypants quotes without inline code”"
-    end
-  end
-
   test "handles highlight blocks" do
     defmodule Example do
       use NimblePublisher,
