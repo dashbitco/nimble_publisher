@@ -29,7 +29,7 @@ defmodule NimblePublisher.MixProject do
       {:earmark, "~> 1.4"},
       {:makeup, "~> 1.0"},
       {:ex_doc, "~> 0.21", only: :docs},
-      {:makeup_elixir, ">= 0.0.0"}
+      {:makeup_elixir, ">= 0.0.0", only: [:test, :docs]}
     ]
   end
 
