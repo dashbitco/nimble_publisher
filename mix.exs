@@ -43,7 +43,7 @@ defmodule NimblePublisher.MixProject do
 
   defp package do
     %{
-      licenses: ["Apache 2"],
+      licenses: ["Apache-2.0"],
       maintainers: ["José Valim"],
       links: %{"GitHub" => @url}
     }
