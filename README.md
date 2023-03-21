@@ -64,7 +64,7 @@ the desired highlighters as a dependency:
 
     def deps do
       [
-        {:nimble_publisher, "~> 0.1.0"},
+        {:nimble_publisher, "~> 1.0"},
         {:makeup_elixir, ">= 0.0.0"},
         {:makeup_erlang, ">= 0.0.0"}
       ]
