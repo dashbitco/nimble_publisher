@@ -32,7 +32,7 @@ Each article in the articles directory must have the format:
     This is a *markdown* document with support for code highlighters:
 
     ```elixir
-    IO.puts "hello world".
+    IO.puts "hello world"
     ```
 
 ## Options
