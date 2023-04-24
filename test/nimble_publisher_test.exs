@@ -119,7 +119,7 @@ defmodule NimblePublisherTest do
     assert Example.__mix_recompile__?()
   end
 
-  test "allows for custom page parsing function" do
+  test "allows for custom page parsing function returning {attrs, body}" do
     defmodule Parser do
       def parse(path, content) do
         body =
@@ -143,6 +143,38 @@ defmodule NimblePublisherTest do
 
       assert hd(@custom).body == "BODY\n"
       assert hd(@custom).attrs == %{path: "test/fixtures/custom.parser", length: 5}
+    end
+  end
+
+  test "allows for custom page parsing function returning a list of {attrs, body}" do
+    defmodule MultiParser do
+      def parse(path, contents) do
+        contents
+        |> String.split("\n***\n")
+        |> Enum.map(fn content ->
+          body =
+            content
+            |> :binary.split("\nxxx\n")
+            |> List.last()
+            |> String.upcase()
+
+          attrs = %{path: path, length: String.length(body)}
+
+          {attrs, body}
+        end)
+      end
+    end
+
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/custom.multi.parser",
+        as: :custom,
+        parser: MultiParser
+
+      assert hd(@custom).body == "BODY\n"
+      assert hd(@custom).attrs == %{path: "test/fixtures/custom.multi.parser", length: 5}
+      assert length(@custom) == 3
     end
   end
 

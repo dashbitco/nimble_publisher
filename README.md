@@ -55,7 +55,7 @@ Each article in the articles directory must have the format:
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
-    and content as params. It must return a 2 element tuple with attributes and body.
+    and content as params. See [Custom parser](#custom-parser) for more details.
 
 ## Examples
 
@@ -188,7 +188,10 @@ end
 ```
 
 The `parse/2` function from this module receives the file path and content as params.
-It must return a 2 element tuple with attributes and body.
+It must return:
+
+  * a 2 element tuple with attributes and body - `{attrs, body}`
+  * a list of 2 element tuple with attributes and body - `[{attrs, body} | _]`
 
 ### Live reloading
 

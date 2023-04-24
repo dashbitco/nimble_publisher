@@ -38,20 +38,29 @@ defmodule NimblePublisher do
     paths = from |> Path.wildcard() |> Enum.sort()
 
     entries =
-      for path <- paths do
-        {attrs, body} = parse_contents!(path, File.read!(path), parser_module)
-
-        body =
-          path
-          |> Path.extname()
-          |> String.downcase()
-          |> convert_body(body, opts)
-
-        builder.build(path, attrs, body)
-      end
+      Enum.flat_map(paths, fn path ->
+        parsed_contents = parse_contents!(path, File.read!(path), parser_module)
+        build_entry(builder, path, parsed_contents, opts)
+      end)
 
     Module.put_attribute(module, as, entries)
     {from, paths}
+  end
+
+  defp build_entry(builder, path, {_attr, _body} = parsed_contents, opts) do
+    build_entry(builder, path, [parsed_contents], opts)
+  end
+
+  defp build_entry(builder, path, parsed_contents, opts) when is_list(parsed_contents) do
+    Enum.map(parsed_contents, fn {attrs, body} ->
+      body =
+        path
+        |> Path.extname()
+        |> String.downcase()
+        |> convert_body(body, opts)
+
+      builder.build(path, attrs, body)
+    end)
   end
 
   defp highlight(html, []) do
