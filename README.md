@@ -50,7 +50,7 @@ Each article in the articles directory must have the format:
     `.css` classes. You can generate the CSS classes by calling
     `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
     You can replace `:vim_style` by any style of your choice
-    [defined here](https://hexdocs.pm/makeup/Makeup.Styles.HTML.StyleMap.html).
+    [defined here](https://elixir-makeup.github.io/makeup_demo/elixir.html).
 
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
