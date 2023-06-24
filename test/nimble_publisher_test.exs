@@ -41,12 +41,12 @@ defmodule NimblePublisherTest do
     defmodule Example do
       use NimblePublisher,
         build: Builder,
-        from: "test/fixtures/markdown.{md,markdown}",
+        from: "test/fixtures/markdown.{md,markdown,livemd}",
         as: :examples
 
       Enum.each(@examples, fn example ->
         assert example.attrs == %{hello: "world"}
-        assert example.body == "<p>\nThis is a markdown <em>document</em>.</p>\n"
+        assert String.match?(example.body, ~r"<p>\nThis is a markdown <em>document</em>.</p>\n")
       end)
     end
   end
