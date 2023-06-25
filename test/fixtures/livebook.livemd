@@ -1,0 +1,9 @@
+%{
+  hello: "world"
+}
+---
+This is a livebook *document*.
+
+The frontmatter in this document makes it an invalid livebook. A custom parser would need to be built to extract something front-mattery from it that is livebook compliant, as the default nimble_publisher parser requires frontmatter in an incompatible way.
+
+However, this file is recognized as a markdown file by it, so nimble_publisher in combination with a custom parser will proceed post-parsing to apply Earmark parsing to it.
