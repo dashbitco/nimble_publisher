@@ -2,7 +2,7 @@
   hello: "world"
 }
 ---
-This is a livebook *document*.
+This is a markdown *document*.
 
 The frontmatter in this document makes it an invalid livebook. A custom parser would need to be built to extract something front-mattery from it that is livebook compliant, as the default nimble_publisher parser requires frontmatter in an incompatible way.
 
