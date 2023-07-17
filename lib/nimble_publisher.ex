@@ -73,19 +73,19 @@ defmodule NimblePublisher do
     NimblePublisher.Highlighter.highlight(html, options)
   end
 
-  defp build_entry(builder, path, {_attr, _body} = parsed_contents, opts) do
+  defp build_entry(builder, path, {_attrs, _body} = parsed_contents, opts) do
     build_entry(builder, path, [parsed_contents], opts)
   end
 
   defp build_entry(builder, path, parsed_contents, opts) when is_list(parsed_contents) do
-    converter_module = Keyword.get(opts, :converter)
+    converter_module = Keyword.get(opts, :html_converter)
     extname = Path.extname(path) |> String.downcase()
 
     Enum.map(parsed_contents, fn {attrs, body} ->
       body =
         case converter_module do
           nil -> convert_body(extname, body, opts)
-          module -> module.convert_body(extname, body, opts)
+          module -> module.convert(extname, body, attrs, opts)
         end
 
       builder.build(path, attrs, body)
