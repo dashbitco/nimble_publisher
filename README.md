@@ -57,6 +57,10 @@ Each article in the articles directory must have the format:
   * `:parser` - custom module with a `parse/2` function that receives the file path
     and content as params. See [Custom parser](#custom-parser) for more details.
 
+  * `:markdown_parser` - custom module with a `parse/1` function that receives the
+    body of the markdown file as a param. See [Custom markdown parser](#custom-markdown-parser)
+    for more details.
+
 ## Examples
 
 Let's see a complete example. First add `nimble_publisher` with
@@ -192,6 +196,28 @@ It must return:
 
   * a 2 element tuple with attributes and body - `{attrs, body}`
   * a list of 2 element tuple with attributes and body - `[{attrs, body} | _]`
+
+### Custom markdown parser
+
+You can also define a custom markdown parser that will be used to convert the of
+the from markdown file into HTML. For example, you may wish to use an
+alternative markdown parser such as [md](https://github.com/am-kantox/md).
+
+```elixir
+  use NimblePublisher,
+    ...
+    markdown_parser: MarkdownParser,
+
+defmodule MarkdownParser do
+  def parse(body) do
+    # Custom markdown parser
+    Md.generate(body)
+  end
+end
+```
+
+The `parse/1` function from this module receives markdown body.
+It should return return a HTML body.
 
 ### Live reloading
 

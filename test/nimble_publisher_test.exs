@@ -178,6 +178,24 @@ defmodule NimblePublisherTest do
     end
   end
 
+  test "allows for custom markdown parsing function returning parsed html" do
+    defmodule MarkdownParser do
+      def parse(body) do
+        "<p>This is a custom markdown parser</p>\n"
+      end
+    end
+
+    defmodule Example do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/markdown.md",
+        as: :custom,
+        markdown_parser: MarkdownParser
+
+      assert hd(@custom).body == "<p>This is a custom markdown parser</p>\n"
+    end
+  end
+
   test "raises if missing separator" do
     assert_raise RuntimeError,
                  ~r/could not find separator --- in "test\/fixtures\/invalid.noseparator"/,

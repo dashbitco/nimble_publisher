@@ -116,7 +116,15 @@ defmodule NimblePublisher do
   defp convert_body(extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
     highlighters = Keyword.get(opts, :highlighters, [])
-    body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
+    markdown_parser_module = Keyword.get(opts, :markdown_parser)
+
+    html_body =
+      case markdown_parser_module do
+        nil -> Earmark.as_html!(body, earmark_opts)
+        module -> module.parse(body)
+      end
+
+    html_body |> highlight(highlighters)
   end
 
   defp convert_body(_extname, body, _opts) do
