@@ -51,14 +51,17 @@ Each article in the articles directory must have the format:
     `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
     You can replace `:vim_style` by any style of your choice
     [defined here](https://elixir-makeup.github.io/makeup_demo/elixir.html).
+    When using a custom `:converter`, you will need to call this
+    manually, as shown in the [Custom markdown converter](#custom-markdown-converter)
+    section.
 
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
     and content as params. See [Custom parser](#custom-parser) for more details.
 
-  * `:markdown_parser` - custom module with a `parse/1` function that receives the
-    body of the markdown file as a param. See [Custom markdown parser](#custom-markdown-parser)
+  * `:converter` - custom module with a `convert_body/3` function that receives the
+    body of the markdown file as a param. See [Custom markdown converter](#custom-markdown-converter)
     for more details.
 
 ## Examples
@@ -197,27 +200,40 @@ It must return:
   * a 2 element tuple with attributes and body - `{attrs, body}`
   * a list of 2 element tuple with attributes and body - `[{attrs, body} | _]`
 
-### Custom markdown parser
+### Custom markdown converter
 
-You can also define a custom markdown parser that will be used to convert the of
-the from markdown file into HTML. For example, you may wish to use an
-alternative markdown parser such as [md](https://github.com/am-kantox/md).
+You can also define a custom markdown converter that will be used to convert the
+body of the from markdown into some other format such as HTML. For example, you
+may wish to use an alternative markdown parser such as
+[md](https://github.com/am-kantox/md). Because the `convert_body/3` function
+does not need to return HTML, if we want to use the built-in highlighting, we
+need to call it manually.
 
 ```elixir
   use NimblePublisher,
     ...
-    markdown_parser: MarkdownParser,
+    converter: MarkdownConverter,
+    highlighters: [:makeup_elixir]
 
-defmodule MarkdownParser do
-  def parse(body) do
-    # Custom markdown parser
-    Md.generate(body)
+defmodule MarkdownConverter do
+  def convert_body(extname, body, opts) when extname in [".md", ".markdown"] do
+    highlighters = Keyword.get(opts, :highlighters, [])
+    
+    html = Md.generate(body) |> highlight(highlighters)
   end
+
+  def convert_body(".html", body, _opts) do
+    body
+  end
+
+  defp highlight(html, []), do: html
+  defp highlight(html, _), do: NimblePublisher.Highlighter.highlight(html)
 end
 ```
 
-The `parse/1` function from this module receives markdown body.
-It should return return a HTML body.
+The `convert_body/3` function from this module receives an extension name,
+a body and the options passed to `NimblePublisher`. It must return the converted
+body as a string. 
 
 ### Live reloading
 
