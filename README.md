@@ -219,15 +219,8 @@ defmodule MarkdownConverter do
   def convert_body(extname, body, opts) when extname in [".md", ".markdown"] do
     highlighters = Keyword.get(opts, :highlighters, [])
     
-    html = Md.generate(body) |> highlight(highlighters)
+    Md.generate(body) |> NimblePublisher.highlight(highlighters)
   end
-
-  def convert_body(".html", body, _opts) do
-    body
-  end
-
-  defp highlight(html, []), do: html
-  defp highlight(html, _), do: NimblePublisher.Highlighter.highlight(html)
 end
 ```
 

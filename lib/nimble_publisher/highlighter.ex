@@ -4,9 +4,14 @@ defmodule NimblePublisher.Highlighter do
   @doc """
   Highlights all code block in an already generated HTML document.
   """
-  def highlight(html) do
+
+  @default_regex ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/
+
+  def highlight(html, options \\ []) do
+    regex = Keyword.get(options, :regex, @default_regex)
+
     Regex.replace(
-      ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/,
+      regex,
       html,
       &highlight_code_block(&1, &2, &3)
     )

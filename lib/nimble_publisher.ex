@@ -47,6 +47,32 @@ defmodule NimblePublisher do
     {from, paths}
   end
 
+  @doc """
+  Highlights all code blocks in an already generated HTML document.
+
+  Options:
+
+    * `:regex` - the regex used to find code blocks in the HTML document. The regex
+      should have two capture groups: the first one should be the language name
+      and the second should contain the code to be highlighted. The default
+      regex to match with generated HTML documents is:
+
+          ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/
+  """
+  def highlight(html, highlighters, options \\ [])
+
+  def highlight(html, [], _options) do
+    html
+  end
+
+  def highlight(html, highlighters, options) when is_list(highlighters) do
+    for highlighter <- highlighters do
+      Application.ensure_all_started(highlighter)
+    end
+
+    NimblePublisher.Highlighter.highlight(html, options)
+  end
+
   defp build_entry(builder, path, {_attr, _body} = parsed_contents, opts) do
     build_entry(builder, path, [parsed_contents], opts)
   end
@@ -64,14 +90,6 @@ defmodule NimblePublisher do
 
       builder.build(path, attrs, body)
     end)
-  end
-
-  defp highlight(html, []) do
-    html
-  end
-
-  defp highlight(html, _) do
-    NimblePublisher.Highlighter.highlight(html)
   end
 
   defp parse_contents!(path, contents, nil) do

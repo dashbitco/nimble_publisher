@@ -180,7 +180,7 @@ defmodule NimblePublisherTest do
 
   test "allows for custom markdown parsing function returning parsed html" do
     defmodule MarkdownConverter do
-      def convert_body(extname, body, opts) do
+      def convert_body(extname, _body, opts) do
         from = Keyword.get(opts, :from)
 
         "<p>This is a custom markdown converter from a #{extname} file, from the #{from} file</p>\n"
@@ -223,5 +223,27 @@ defmodule NimblePublisherTest do
                        as: :example
                    end
                  end
+  end
+
+  test "highlights code blocks" do
+    higlighters = [:makeup_elixir, :makeup_erlang]
+    input = "<pre><code class=\"elixir\">IO.puts(\"Hello World\")</code></pre>"
+    output = NimblePublisher.highlight(input, higlighters)
+
+    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">IO"
+  end
+
+  test "highlights code blocks with custom regex" do
+    highlighters = [:makeup_elixir]
+    input = "<code lang=\"elixir\">IO.puts(\"Hello World\")</code>"
+
+    output =
+      NimblePublisher.highlight(
+        input,
+        highlighters,
+        regex: ~r/<code(?:\s+lang="(\w*)")?>([^<]*)<\/code>/
+      )
+
+    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
   end
 end
