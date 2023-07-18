@@ -47,28 +47,40 @@ defmodule NimblePublisher do
     {from, paths}
   end
 
-  defp build_entry(builder, path, {_attr, _body} = parsed_contents, opts) do
+  @doc """
+  Highlights all code blocks in an already generated HTML document.
+  
+  It uses Makeup and expects the existing highlighters applications to
+  be already started.
+
+  Options:
+
+    * `:regex` - the regex used to find code blocks in the HTML document. The regex
+      should have two capture groups: the first one should be the language name
+      and the second should contain the code to be highlighted. The default
+      regex to match with generated HTML documents is:
+
+          ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/
+  """
+  defdelegate highlight(html, options \\ []), to: NimblePublisher.Highlighter
+
+  defp build_entry(builder, path, {_attrs, _body} = parsed_contents, opts) do
     build_entry(builder, path, [parsed_contents], opts)
   end
 
   defp build_entry(builder, path, parsed_contents, opts) when is_list(parsed_contents) do
+    converter_module = Keyword.get(opts, :html_converter)
+    extname = Path.extname(path) |> String.downcase()
+
     Enum.map(parsed_contents, fn {attrs, body} ->
       body =
-        path
-        |> Path.extname()
-        |> String.downcase()
-        |> convert_body(body, opts)
+        case converter_module do
+          nil -> convert_body(extname, body, opts)
+          module -> module.convert(extname, body, attrs, opts)
+        end
 
       builder.build(path, attrs, body)
     end)
-  end
-
-  defp highlight(html, []) do
-    html
-  end
-
-  defp highlight(html, _) do
-    NimblePublisher.Highlighter.highlight(html)
   end
 
   defp parse_contents!(path, contents, nil) do
@@ -115,8 +127,12 @@ defmodule NimblePublisher do
 
   defp convert_body(extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-    highlighters = Keyword.get(opts, :highlighters, [])
-    body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
+    html = Earmark.as_html!(body, earmark_opts)
+
+    case Keyword.get(opts, :highlighters, []) do
+      [] -> html
+      [_ | _] -> highlight(html)
+    end
   end
 
   defp convert_body(_extname, body, _opts) do

@@ -57,6 +57,10 @@ Each article in the articles directory must have the format:
   * `:parser` - custom module with a `parse/2` function that receives the file path
     and content as params. See [Custom parser](#custom-parser) for more details.
 
+  * `:html_converter` - custom module with a `convert/4` function that receives the
+    extension, body, and attributes of the markdown file, as well as all options 
+    as params. See [Custom HTML converter](#custom-html-converter) for more details.
+
 ## Examples
 
 Let's see a complete example. First add `nimble_publisher` with
@@ -192,6 +196,33 @@ It must return:
 
   * a 2 element tuple with attributes and body - `{attrs, body}`
   * a list of 2 element tuple with attributes and body - `[{attrs, body} | _]`
+
+### Custom HTML converter
+
+You can also define a custom HTML converter that will be used to convert the
+file body (typically Markdown) into HTML. For example, you may wish to use an
+alternative Markdown parser such as [md](https://github.com/am-kantox/md).
+If you want to use the built-in highlighting, you need to call it manually.
+
+```elixir
+  use NimblePublisher,
+    ...
+    html_converter: MarkdownConverter,
+    highlighters: [:makeup_elixir]
+```
+
+```elixir
+defmodule MarkdownConverter do
+  def convert(extname, body, _attrs, opts) when extname in [".md", ".markdown"] do
+    highlighters = Keyword.get(opts, :highlighters, [])
+    body |> Md.generate() |> NimblePublisher.highlight(highlighters)
+  end
+end
+```
+
+The `convert/4` function from this module receives an extension name, a body,
+the parsed attributes from the file, and the options passed to
+`NimblePublisher`. It must return the converted body as a string. 
 
 ### Live reloading
 
