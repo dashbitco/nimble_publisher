@@ -59,19 +59,7 @@ defmodule NimblePublisher do
 
           ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/
   """
-  def highlight(html, highlighters, options \\ [])
-
-  def highlight(html, [], _options) do
-    html
-  end
-
-  def highlight(html, highlighters, options) when is_list(highlighters) do
-    for highlighter <- highlighters do
-      Application.ensure_all_started(highlighter)
-    end
-
-    NimblePublisher.Highlighter.highlight(html, options)
-  end
+  defdelegate highlight(html, options \\ []), to: NimblePublisher.Highlighter
 
   defp build_entry(builder, path, {_attrs, _body} = parsed_contents, opts) do
     build_entry(builder, path, [parsed_contents], opts)
@@ -136,8 +124,12 @@ defmodule NimblePublisher do
 
   defp convert_body(extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
     earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
-    highlighters = Keyword.get(opts, :highlighters, [])
-    body |> Earmark.as_html!(earmark_opts) |> highlight(highlighters)
+    html = Earmark.as_html!(body, earmark_opts)
+
+    case Keyword.get(opts, :highlighters, []) do
+      [] -> html
+      [_ | _] -> highlight(html)
+    end
   end
 
   defp convert_body(_extname, body, _opts) do
