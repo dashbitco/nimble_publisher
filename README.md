@@ -51,10 +51,6 @@ Each article in the articles directory must have the format:
     `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
     You can replace `:vim_style` by any style of your choice
     [defined here](https://elixir-makeup.github.io/makeup_demo/elixir.html).
-    
-    When using a custom `:html_converter`, you will need to call
-    `NiblePublisher.highlight/3` manually, as shown in the 
-    [Custom markdown converter](#custom-markdown-converter) section.
 
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
@@ -63,8 +59,7 @@ Each article in the articles directory must have the format:
 
   * `:html_converter` - custom module with a `convert/4` function that receives the
     extension, body, and attributes of the markdown file, as well as all options 
-    as params. See [Custom markdown converter](#custom-markdown-converter)
-    for more details.
+    as params. See [Custom HTML converter](#custom-html-converter) for more details.
 
 ## Examples
 
@@ -202,26 +197,25 @@ It must return:
   * a 2 element tuple with attributes and body - `{attrs, body}`
   * a list of 2 element tuple with attributes and body - `[{attrs, body} | _]`
 
-### Custom markdown converter
+### Custom HTML converter
 
-You can also define a custom markdown converter that will be used to convert the
-body of the from markdown into some other format such as HTML. For example, you
-may wish to use an alternative markdown parser such as
-[md](https://github.com/am-kantox/md). Because the `convert/4` function
-does not need to return HTML, if you want to use the built-in highlighting, you
-need to call it manually.
+You can also define a custom HTML converter that will be used to convert the
+file body (typically Markdown) into HTML. For example, you may wish to use an
+alternative Markdown parser such as [md](https://github.com/am-kantox/md).
+If you want to use the built-in highlighting, you need to call it manually.
 
 ```elixir
   use NimblePublisher,
     ...
     html_converter: MarkdownConverter,
     highlighters: [:makeup_elixir]
+```
 
+```elixir
 defmodule MarkdownConverter do
   def convert(extname, body, _attrs, opts) when extname in [".md", ".markdown"] do
     highlighters = Keyword.get(opts, :highlighters, [])
-    
-    Md.generate(body) |> NimblePublisher.highlight(highlighters)
+    body |> Md.generate() |> NimblePublisher.highlight(highlighters)
   end
 end
 ```
