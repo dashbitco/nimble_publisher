@@ -49,7 +49,7 @@ defmodule NimblePublisher do
 
   @doc """
   Highlights all code blocks in an already generated HTML document.
-  
+
   It uses Makeup and expects the existing highlighters applications to
   be already started.
 

@@ -1,12 +1,25 @@
 name: CI
 
 on:
-  pull_request:
   push:
-    branches:
-      - master
 
 jobs:
+  lint:
+      runs-on: ubuntu-22.04
+      steps:
+        - uses: actions/checkout@v2
+
+        - uses: erlef/setup-beam@v1
+          with:
+            otp-version: 25.x
+            elixir-version: 1.x
+
+        - run: mix deps.get
+        - run: mix deps.unlock --check-unused
+        - run: mix deps.compile
+        - run: mix compile --warnings-as-errors
+        - run: mix format --check-formatted
+
   test:
     runs-on: ubuntu-20.04
     env:
@@ -15,41 +28,30 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - pair:
-              elixir: 1.7.4
-              otp: 19.3.6.13
-          - pair:
-              elixir: 1.11.4
-              otp: 23.3.2
-            lint: lint
+          - versions:
+              otp: 22.x
+              elixir: 1.12.x
+          - versions:
+              otp: 26.x
+              elixir: 1.x
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.pair.otp}}
-          elixir-version: ${{matrix.pair.elixir}}
+          otp-version: ${{ matrix.versions.otp }}
+          elixir-version: ${{ matrix.versions.elixir }}
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{matrix.pair.elixir}}-${{matrix.pair.otp}}-${{ hashFiles('**/mix.lock') }}
+          key: ${{ runner.os }}-mix-${{ matrix.versions.elixir }}-${{ matrix.versions.otp }}-${{ hashFiles('**/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-mix-
 
       - run: mix deps.get
-
-      - run: mix format --check-formatted
-        if: ${{ matrix.lint }}
-
-      - run: mix deps.unlock --check-unused
-        if: ${{ matrix.lint }}
-
       - run: mix deps.compile
-
-      - run: mix compile --warnings-as-errors
-        if: ${{ matrix.lint }}
-
+      - run: mix compile
       - run: mix test
