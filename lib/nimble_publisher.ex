@@ -70,13 +70,12 @@ defmodule NimblePublisher do
 
   defp build_entry(builder, path, parsed_contents, opts) when is_list(parsed_contents) do
     converter_module = Keyword.get(opts, :html_converter)
-    extname = Path.extname(path) |> String.downcase()
 
     Enum.map(parsed_contents, fn {attrs, body} ->
       body =
         case converter_module do
-          nil -> convert_body(extname, body, opts)
-          module -> module.convert(extname, body, attrs, opts)
+          nil -> path |> Path.extname() |> String.downcase() |> convert_body(body, opts)
+          module -> module.convert(path, body, attrs, opts)
         end
 
       builder.build(path, attrs, body)

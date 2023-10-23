@@ -180,22 +180,22 @@ defmodule NimblePublisherTest do
 
   test "allows for custom markdown parsing function returning parsed html" do
     defmodule MarkdownConverter do
-      def convert(extname, _body, attrs, opts) do
-        from = Keyword.get(opts, :from)
-
-        "<p>This is a custom markdown converter from a #{extname} file, from the #{from} file, hello #{attrs.hello}</p>\n"
+      def convert(path, _body, attrs, opts) do
+        :custom_value = opts[:custom_opt]
+        "<p>This is a custom markdown converter from #{path}, hello #{attrs.hello}</p>\n"
       end
     end
 
     defmodule Example do
       use NimblePublisher,
         build: Builder,
-        from: "test/fixtures/markdown.md",
+        from: "test/fixtures/mark*.md",
+        custom_opt: :custom_value,
         as: :custom,
         html_converter: MarkdownConverter
 
       assert hd(@custom).body ==
-               "<p>This is a custom markdown converter from a .md file, from the test/fixtures/markdown.md file, hello world</p>\n"
+               "<p>This is a custom markdown converter from test/fixtures/markdown.md, hello world</p>\n"
     end
   end
 

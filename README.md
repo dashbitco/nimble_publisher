@@ -58,7 +58,7 @@ Each article in the articles directory must have the format:
     and content as params. See [Custom parser](#custom-parser) for more details.
 
   * `:html_converter` - custom module with a `convert/4` function that receives the
-    extension, body, and attributes of the markdown file, as well as all options 
+    extension, body, and attributes of the markdown file, as well as all options
     as params. See [Custom HTML converter](#custom-html-converter) for more details.
 
 ## Examples
@@ -222,7 +222,7 @@ end
 
 The `convert/4` function from this module receives an extension name, a body,
 the parsed attributes from the file, and the options passed to
-`NimblePublisher`. It must return the converted body as a string. 
+`NimblePublisher`. It must return the converted body as a string.
 
 ### Live reloading
 
