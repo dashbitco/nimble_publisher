@@ -136,7 +136,7 @@ end
 
 **Important**: Avoid injecting the `@posts` attribute into multiple functions,
 as each call will make a complete copy of all posts. For example, if you want
-to show define `recent_posts()` as well as `all_posts()`, DO NOT do this:
+to define `recent_posts()` as well as `all_posts()`, DO NOT do this:
 
 ```elixir
 def all_posts, do: @posts
