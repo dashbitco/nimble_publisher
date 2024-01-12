@@ -213,9 +213,11 @@ If you want to use the built-in highlighting, you need to call it manually.
 
 ```elixir
 defmodule MarkdownConverter do
-  def convert(extname, body, _attrs, opts) when extname in [".md", ".markdown"] do
-    highlighters = Keyword.get(opts, :highlighters, [])
-    body |> Md.generate() |> NimblePublisher.highlight(highlighters)
+  def convert(filepath, body, _attrs, opts) do
+    if Path.extname(filepath) in [".md", ".markdown"] do
+      highlighters = Keyword.get(opts, :highlighters, [])
+      body |> Md.generate() |> NimblePublisher.highlight(highlighters)
+    end
   end
 end
 ```
