@@ -55,11 +55,11 @@ Each article in the articles directory must have the format:
   * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
-    and content as params. See [Custom parser](#custom-parser) for more details.
+    and content as params. See [Custom parser](#module-custom-parser) for more details.
 
   * `:html_converter` - custom module with a `convert/4` function that receives the
     extension, body, and attributes of the markdown file, as well as all options
-    as params. See [Custom HTML converter](#custom-html-converter) for more details.
+    as params. See [Custom HTML converter](#module-custom-html-converter) for more details.
 
 ## Examples
 
