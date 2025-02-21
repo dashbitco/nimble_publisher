@@ -60,7 +60,7 @@ defmodule NimblePublisher do
       and the second should contain the code to be highlighted. The default
       regex to match with generated HTML documents is:
 
-          ~r/<pre><code(?:\s+class="(\w*)")?>([^<]*)<\/code><\/pre>/
+          ~r/<pre><code(?:\s+class="([^"\s]*)")?>([^<]*)<\/code><\/pre>/
   """
   defdelegate highlight(html, options \\ []), to: NimblePublisher.Highlighter
 
