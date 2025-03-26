@@ -38,9 +38,17 @@ defmodule NimblePublisher do
     paths = from |> Path.wildcard() |> Enum.sort()
 
     entries =
-      Enum.flat_map(paths, fn path ->
-        parsed_contents = parse_contents!(path, File.read!(path), parser_module)
-        build_entry(builder, path, parsed_contents, opts)
+      paths
+      |> Task.async_stream(
+        fn path ->
+          parsed_contents = parse_contents!(path, File.read!(path), parser_module)
+          build_entry(builder, path, parsed_contents, opts)
+        end,
+        timeout: :infinity
+      )
+      |> Enum.flat_map(fn
+        {:ok, results} -> results
+        _ -> []
       end)
 
     Module.put_attribute(module, as, entries)

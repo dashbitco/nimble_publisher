@@ -200,29 +200,41 @@ defmodule NimblePublisherTest do
   end
 
   test "raises if missing separator" do
-    assert_raise RuntimeError,
-                 ~r/could not find separator --- in "test\/fixtures\/invalid.noseparator"/,
-                 fn ->
-                   defmodule Example do
-                     use NimblePublisher,
-                       build: Builder,
-                       from: "test/fixtures/invalid.noseparator",
-                       as: :example
-                   end
-                 end
+    Process.flag(:trap_exit, true)
+
+    pid =
+      spawn_link(fn ->
+        defmodule Example do
+          use NimblePublisher,
+            build: Builder,
+            from: "test/fixtures/invalid.noseparator",
+            as: :example
+        end
+      end)
+
+    assert_receive {:EXIT, ^pid, {%RuntimeError{} = error, _exception}}
+
+    assert Exception.message(error) =~
+             ~r/could not find separator --- in "test\/fixtures\/invalid.noseparator"/
   end
 
   test "raises if not a map" do
-    assert_raise RuntimeError,
-                 ~r/expected attributes for \"test\/fixtures\/invalid.nomap\" to return a map/,
-                 fn ->
-                   defmodule Example do
-                     use NimblePublisher,
-                       build: Builder,
-                       from: "test/fixtures/invalid.nomap",
-                       as: :example
-                   end
-                 end
+    Process.flag(:trap_exit, true)
+
+    pid =
+      spawn_link(fn ->
+        defmodule Example do
+          use NimblePublisher,
+            build: Builder,
+            from: "test/fixtures/invalid.nomap",
+            as: :example
+        end
+      end)
+
+    assert_receive {:EXIT, ^pid, {%RuntimeError{} = error, _exception}}
+
+    assert Exception.message(error) =~
+             ~r/expected attributes for \"test\/fixtures\/invalid.nomap\" to return a map/
   end
 
   test "highlights code blocks" do
