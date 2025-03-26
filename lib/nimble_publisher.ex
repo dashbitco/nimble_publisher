@@ -39,10 +39,13 @@ defmodule NimblePublisher do
 
     entries =
       paths
-      |> Task.async_stream(fn path ->
-        parsed_contents = parse_contents!(path, File.read!(path), parser_module)
-        build_entry(builder, path, parsed_contents, opts)
-      end)
+      |> Task.async_stream(
+        fn path ->
+          parsed_contents = parse_contents!(path, File.read!(path), parser_module)
+          build_entry(builder, path, parsed_contents, opts)
+        end,
+        timeout: :infinity
+      )
       |> Enum.flat_map(fn
         {:ok, results} -> results
         _ -> []
