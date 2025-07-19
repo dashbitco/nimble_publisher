@@ -1,6 +1,8 @@
 defmodule NimblePublisherTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureIO
+
   doctest NimblePublisher
 
   defmodule Builder do
@@ -253,5 +255,30 @@ defmodule NimblePublisherTest do
       )
 
     assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
+  end
+
+  test "handles broken markdown with warnings" do
+    output =
+      capture_io(:stderr, fn ->
+        defmodule BrokenMarkdownConverter do
+          def convert(path, body, _attrs, _opts) do
+            Earmark.as_html!(body, %Earmark.Options{file: path})
+          end
+        end
+
+        defmodule Example do
+          use NimblePublisher,
+            build: Builder,
+            from: "test/fixtures/invalid.brokenmarkdown",
+            as: :examples,
+            html_converter: BrokenMarkdownConverter
+
+          assert hd(@examples).attrs == %{hello: "world"}
+          assert hd(@examples).body =~ "This has an unclosed backquote"
+        end
+      end)
+
+    assert output =~
+             "test/fixtures/invalid.brokenmarkdown:1: warning: Closing unclosed backquotes ` at end of input\n"
   end
 end

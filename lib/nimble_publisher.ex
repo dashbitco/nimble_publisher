@@ -82,8 +82,12 @@ defmodule NimblePublisher do
     Enum.map(parsed_contents, fn {attrs, body} ->
       body =
         case converter_module do
-          nil -> path |> Path.extname() |> String.downcase() |> convert_body(body, opts)
-          module -> module.convert(path, body, attrs, opts)
+          nil ->
+            extname = path |> Path.extname() |> String.downcase()
+            convert_body(path, extname, body, opts)
+
+          module ->
+            module.convert(path, body, attrs, opts)
         end
 
       builder.build(path, attrs, body)
@@ -132,8 +136,8 @@ defmodule NimblePublisher do
     end
   end
 
-  defp convert_body(extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{})
+  defp convert_body(path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
+    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{file: path})
     html = Earmark.as_html!(body, earmark_opts)
 
     case Keyword.get(opts, :highlighters, []) do
@@ -142,7 +146,7 @@ defmodule NimblePublisher do
     end
   end
 
-  defp convert_body(_extname, body, _opts) do
+  defp convert_body(_path, _extname, body, _opts) do
     body
   end
 end
