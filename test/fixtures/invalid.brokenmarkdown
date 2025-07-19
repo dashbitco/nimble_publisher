@@ -1,0 +1,5 @@
+%{
+  hello: "world"
+}
+---
+This has an unclosed backquote`
