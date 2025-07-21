@@ -26,23 +26,28 @@ defmodule NimblePublisher do
 
   @doc false
   def __extract__(module, opts) do
-    builder = Keyword.fetch!(opts, :build)
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
-    parser_module = Keyword.get(opts, :parser)
+    paths = from |> Path.wildcard() |> Enum.sort()
 
     for highlighter <- Keyword.get(opts, :highlighters, []) do
       Application.ensure_all_started(highlighter)
     end
 
-    paths = from |> Path.wildcard() |> Enum.sort()
+    builder = Keyword.fetch!(opts, :build)
+    parser = Keyword.get(opts, :parser)
+    converter = Keyword.get(opts, :html_converter)
+
+    Code.ensure_compiled(builder)
+    parser && Code.ensure_compiled(parser)
+    converter && Code.ensure_compiled(converter)
 
     entries =
       paths
       |> Task.async_stream(
         fn path ->
-          parsed_contents = parse_contents!(path, File.read!(path), parser_module)
-          build_entry(builder, path, parsed_contents, opts)
+          parsed_contents = parse_contents!(path, File.read!(path), parser)
+          build_entry(builder, converter, path, parsed_contents, opts)
         end,
         timeout: :infinity
       )
@@ -72,22 +77,19 @@ defmodule NimblePublisher do
   """
   defdelegate highlight(html, options \\ []), to: NimblePublisher.Highlighter
 
-  defp build_entry(builder, path, {_attrs, _body} = parsed_contents, opts) do
-    build_entry(builder, path, [parsed_contents], opts)
+  defp build_entry(builder, converter, path, {_attrs, _body} = parsed_contents, opts) do
+    build_entry(builder, converter, path, [parsed_contents], opts)
   end
 
-  defp build_entry(builder, path, parsed_contents, opts) when is_list(parsed_contents) do
-    converter_module = Keyword.get(opts, :html_converter)
-
+  defp build_entry(builder, converter, path, parsed_contents, opts)
+       when is_list(parsed_contents) do
     Enum.map(parsed_contents, fn {attrs, body} ->
       body =
-        case converter_module do
-          nil ->
-            extname = path |> Path.extname() |> String.downcase()
-            convert_body(path, extname, body, opts)
-
-          module ->
-            module.convert(path, body, attrs, opts)
+        if converter do
+          converter.convert(path, body, attrs, opts)
+        else
+          extname = path |> Path.extname() |> String.downcase()
+          convert_body(path, extname, body, opts)
         end
 
       builder.build(path, attrs, body)
@@ -115,8 +117,8 @@ defmodule NimblePublisher do
     end
   end
 
-  defp parse_contents!(path, contents, parser_module) do
-    parser_module.parse(path, contents)
+  defp parse_contents!(path, contents, parser) do
+    parser.parse(path, contents)
   end
 
   defp parse_contents(path, contents) do
