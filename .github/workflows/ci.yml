@@ -5,20 +5,20 @@ on:
 
 jobs:
   lint:
-      runs-on: ubuntu-24.04
-      steps:
-        - uses: actions/checkout@v2
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v2
 
-        - uses: erlef/setup-beam@v1
-          with:
-            otp-version: 27.x
-            elixir-version: 1.18
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: 27.x
+          elixir-version: 1.18
 
-        - run: mix deps.get
-        - run: mix deps.unlock --check-unused
-        - run: mix deps.compile
-        - run: mix compile --warnings-as-errors
-        - run: mix format --check-formatted
+      - run: mix deps.get
+      - run: mix deps.unlock --check-unused
+      - run: mix deps.compile
+      - run: mix compile --warnings-as-errors
+      - run: mix format --check-formatted
 
   test:
     runs-on: ubuntu-24.04
@@ -28,12 +28,8 @@ jobs:
       fail-fast: false
       matrix:
         elixir: ["1.18", "1.17", "1.16"]
-        otp: ["27", "26", "25", "24"]
+        otp: ["27", "26", "25"]
         exclude:
-          - elixir: "1.18"
-            otp: "24"
-          - elixir: "1.17"
-            otp: "24"
           - elixir: "1.16"
             otp: "27"
     steps:
