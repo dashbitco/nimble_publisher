@@ -26,6 +26,10 @@ defmodule NimblePublisher.Highlighter do
 
   defp pick_language_and_lexer(""), do: {"text", nil, []}
 
+  defp pick_language_and_lexer("language-" <> lang) do
+    pick_language_and_lexer(lang)
+  end
+
   defp pick_language_and_lexer(lang) do
     case Makeup.Registry.fetch_lexer_by_name(lang) do
       {:ok, {lexer, opts}} -> {lang, lexer, opts}

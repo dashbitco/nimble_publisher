@@ -45,14 +45,15 @@ Each article in the articles directory must have the format:
 
   * `:as` - the name of the module attribute to store all built entries
 
-  * `:highlighters` - which code highlighters to use. `NimblePublisher`
-    uses `Makeup` for syntax highlighting and you will need to add its
-    `.css` classes. You can generate the CSS classes by calling
+  * `:mdex_options` - a keyword list of options accepted by [`MDEx.to_html!`](https://mdex.hexdocs.pm/MDEx.html#to_html!/2)
+
+  * `:highlighters` - by default, `NimblePublisher` uses `MDEx`'s default
+    syntax highlighter (see `:mdex_options` above). However, you can use
+    Elixir's `Makeup` for syntax highlighting. When doing so, you will need
+    to add its `.css` classes to your website. You can generate them by calling
     `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
     You can replace `:vim_style` by any style of your choice
     [defined here](https://elixir-makeup.github.io/makeup_demo/elixir.html).
-
-  * `:earmark_options` - an [`%Earmark.Options{}`](https://hexdocs.pm/earmark/Earmark.Options.html) struct
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
     and content as params. See [Custom parser](#module-custom-parser) for more details.

@@ -26,8 +26,8 @@ defmodule NimblePublisher.MixProject do
 
   defp deps do
     [
-      {:earmark, "~> 1.4"},
-      {:makeup, "~> 1.0"},
+      {:mdex, "~> 0.12"},
+      {:makeup, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.21", only: :docs},
       {:makeup_elixir, ">= 0.0.0", only: [:test, :docs]}
     ]

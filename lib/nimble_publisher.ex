@@ -138,13 +138,15 @@ defmodule NimblePublisher do
     end
   end
 
-  defp convert_body(path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{file: path})
-    html = Earmark.as_html!(body, earmark_opts)
+  defp convert_body(_path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
+    mdex_options = Keyword.get(opts, :mdex_options, [])
 
-    case Keyword.get(opts, :highlighters, []) do
-      [] -> html
-      [_ | _] -> highlight(html)
+    if Keyword.get(opts, :highlighters) do
+      body
+      |> MDEx.to_html!(Keyword.put(mdex_options, :syntax_highlight, nil))
+      |> highlight()
+    else
+      MDEx.to_html!(body, mdex_options)
     end
   end
 
