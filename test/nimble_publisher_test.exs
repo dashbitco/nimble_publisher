@@ -57,7 +57,7 @@ defmodule NimblePublisherTest do
         build: Builder,
         from: "test/fixtures/comrak_options.markdown",
         as: :examples,
-        comrak_options: [extension: [tasklist: true, autolink: true, header_id_prefix: "example-"]]
+        comrak_options: [extension: [tasklist: true, autolink: false, header_id_prefix: "example-"]]
 
       html = hd(@examples).body
 
@@ -66,8 +66,8 @@ defmodule NimblePublisherTest do
       assert html =~ ~s(<input type="checkbox" checked="" disabled="" />)
       assert html =~ ~s(<input type="checkbox" disabled="" />)
 
-      assert html =~
-               ~s(<a href="https://github.com/leandrocp/mdex_native">https://github.com/leandrocp/mdex_native</a>)
+      assert html =~ "Visit https://github.com/leandrocp/mdex_native"
+      refute html =~ ~s(<a href="https://github.com/leandrocp/mdex_native">)
     end
   end
 

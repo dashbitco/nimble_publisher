@@ -47,7 +47,16 @@ Each article in the articles directory must have the format:
 
   * `:comrak_options` - a keyword list of options accepted by
     [`MDExNative.Comrak.markdown_to_html`](https://mdex-native.hexdocs.pm/MDExNative.Comrak.html#markdown_to_html/2)
-    to customize Markdown rendering
+    to customize Markdown rendering. The default options enable GitHub
+    Flavored Markdown and assume you are rendering trusted content,
+    as NimblePublisher is designed to render your own content:
+
+    ```elixir
+    [
+      extension: [table: true, autolink: true, strikethrough: true],
+      render: [hardbreaks: false, unsafe: true]
+    ]
+    ```
 
   * `:highlighters` - which code highlighters to use. `NimblePublisher`
     uses `Makeup` for syntax highlighting and you will need to add its

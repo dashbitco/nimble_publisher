@@ -139,7 +139,15 @@ defmodule NimblePublisher do
   end
 
   defp convert_body(_path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
-    comrak_options = Keyword.get(opts, :comrak_options, [])
+    comrak_options =
+      Config.Reader.merge(
+        [
+          extension: [table: true, autolink: true, strikethrough: true],
+          render: [hardbreaks: false, unsafe: true]
+        ],
+        Keyword.get(opts, :comrak_options, [])
+      )
+
     html = MDExNative.Comrak.markdown_to_html(body, comrak_options)
 
     case Keyword.get(opts, :highlighters, []) do
