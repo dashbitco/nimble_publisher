@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v2.0.0-dev (2026-06-06)
+## v2.0.0 (2026-06-06)
 
   * Use [MDExNative](https://mdex-native.hexdocs.pm/MDExNative.html) as the Markdown engine instead of the deprecated Earmark. While Markdown engines are mostly compatible, they may have subtle differences. If you were specifying custom `:earmark_options` on `use NimblePublisher`, you will need to use `:comrak_options` instead. See the documentation for more information
   * Require Elixir v1.11+
