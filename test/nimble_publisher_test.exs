@@ -1,8 +1,6 @@
 defmodule NimblePublisherTest do
   use ExUnit.Case, async: true
 
-  import ExUnit.CaptureIO
-
   doctest NimblePublisher
 
   defmodule Builder do
@@ -48,8 +46,30 @@ defmodule NimblePublisherTest do
 
       Enum.each(@examples, fn example ->
         assert example.attrs == %{hello: "world"}
-        assert String.match?(example.body, ~r"<p>\nThis is a markdown <em>document</em>.</p>\n")
+        assert String.match?(example.body, ~r"<p>\n?This is a markdown <em>document</em>.</p>\n?")
       end)
+    end
+  end
+
+  test "converts markdown with custom comrak options" do
+    defmodule ComrakOptionsExample do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/comrak_options.markdown",
+        as: :examples,
+        comrak_options: [
+          extension: [tasklist: true, autolink: false, header_id_prefix: "example-"]
+        ]
+
+      html = hd(@examples).body
+
+      assert html =~ ~s(id="example-project-tasks")
+      assert html =~ ~s(>Project Tasks</h1>)
+      assert html =~ ~s(<input type="checkbox" checked="" disabled="" />)
+      assert html =~ ~s(<input type="checkbox" disabled="" />)
+
+      assert html =~ "Visit https://github.com/leandrocp/mdex_native"
+      refute html =~ ~s(<a href="https://github.com/leandrocp/mdex_native">)
     end
   end
 
@@ -75,7 +95,7 @@ defmodule NimblePublisherTest do
         as: :examples
 
       assert hd(@examples).attrs == %{syntax: "nohighlight"}
-      assert hd(@examples).body =~ "<pre><code>IO.puts &quot;syntax&quot;</code></pre>"
+      assert hd(@examples).body =~ ~r"<pre><code>IO.puts &quot;syntax&quot;\n?</code></pre>"
     end
   end
 
@@ -239,46 +259,23 @@ defmodule NimblePublisherTest do
              ~r/expected attributes for \"test\/fixtures\/invalid.nomap\" to return a map/
   end
 
-  test "highlights code blocks" do
-    input = "<pre><code class=\"elixir\">IO.puts(\"Hello World\")</code></pre>"
-    output = NimblePublisher.highlight(input)
-    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">IO"
-  end
+  describe "highlight/1" do
+    test "highlights code blocks" do
+      input = "<pre><code class=\"elixir\">IO.puts(\"Hello World\")</code></pre>"
+      output = NimblePublisher.highlight(input)
+      assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">IO"
+    end
 
-  test "highlights code blocks with custom regex" do
-    input = "<code lang=\"elixir\">IO.puts(\"Hello World\")</code>"
+    test "highlights code blocks with custom regex" do
+      input = "<code lang=\"elixir\">IO.puts(\"Hello World\")</code>"
 
-    output =
-      NimblePublisher.highlight(
-        input,
-        regex: ~r/<code(?:\s+lang="(\w*)")?>([^<]*)<\/code>/
-      )
+      output =
+        NimblePublisher.highlight(
+          input,
+          regex: ~r/<code(?:\s+lang="(\w*)")?>([^<]*)<\/code>/
+        )
 
-    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
-  end
-
-  test "handles broken markdown with warnings" do
-    output =
-      capture_io(:stderr, fn ->
-        defmodule BrokenMarkdownConverter do
-          def convert(path, body, _attrs, _opts) do
-            Earmark.as_html!(body, %Earmark.Options{file: path})
-          end
-        end
-
-        defmodule Example do
-          use NimblePublisher,
-            build: Builder,
-            from: "test/fixtures/invalid.brokenmarkdown",
-            as: :examples,
-            html_converter: BrokenMarkdownConverter
-
-          assert hd(@examples).attrs == %{hello: "world"}
-          assert hd(@examples).body =~ "This has an unclosed backquote"
-        end
-      end)
-
-    assert output =~
-             "test/fixtures/invalid.brokenmarkdown:1: warning: Closing unclosed backquotes ` at end of input\n"
+      assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
+    end
   end
 end

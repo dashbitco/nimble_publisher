@@ -18,14 +18,14 @@ defmodule NimblePublisher do
         unquote(from) |> Path.wildcard() |> Enum.sort() |> :erlang.md5() !=
           unquote(:erlang.md5(paths))
       end
-
-      # TODO: Remove me once we require Elixir v1.11+.
-      def __phoenix_recompile__?, do: __mix_recompile__?()
     end
   end
 
   @doc false
   def __extract__(module, opts) do
+    # We suggest runtime: false, let's make sure all is running during extraction
+    Application.ensure_all_started(:nimble_publisher)
+
     from = Keyword.fetch!(opts, :from)
     as = Keyword.fetch!(opts, :as)
     paths = from |> Path.wildcard() |> Enum.sort()
@@ -138,9 +138,17 @@ defmodule NimblePublisher do
     end
   end
 
-  defp convert_body(path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
-    earmark_opts = Keyword.get(opts, :earmark_options, %Earmark.Options{file: path})
-    html = Earmark.as_html!(body, earmark_opts)
+  defp convert_body(_path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
+    comrak_options =
+      Config.Reader.merge(
+        [
+          extension: [table: true, autolink: true, strikethrough: true],
+          render: [hardbreaks: false, unsafe: true]
+        ],
+        Keyword.get(opts, :comrak_options, [])
+      )
+
+    html = MDExNative.Comrak.markdown_to_html(body, comrak_options)
 
     case Keyword.get(opts, :highlighters, []) do
       [] -> html

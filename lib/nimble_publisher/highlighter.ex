@@ -5,6 +5,7 @@ defmodule NimblePublisher.Highlighter do
   Highlights all code block in an already generated HTML document.
   """
 
+  @compile {:no_warn_undefined, Makeup}
   @default_regex ~r/<pre><code(?:\s+class="([^"\s]*)")?>([^<]*)<\/code><\/pre>/
 
   def highlight(html, options \\ []) do
@@ -25,6 +26,10 @@ defmodule NimblePublisher.Highlighter do
   end
 
   defp pick_language_and_lexer(""), do: {"text", nil, []}
+
+  defp pick_language_and_lexer("language-" <> lang) do
+    pick_language_and_lexer(lang)
+  end
 
   defp pick_language_and_lexer(lang) do
     case Makeup.Registry.fetch_lexer_by_name(lang) do

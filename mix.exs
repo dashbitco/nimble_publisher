@@ -1,14 +1,14 @@
 defmodule NimblePublisher.MixProject do
   use Mix.Project
 
-  @version "1.1.1"
+  @version "2.0.0-dev"
   @url "https://github.com/dashbitco/nimble_publisher"
 
   def project do
     [
       app: :nimble_publisher,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.11",
       name: "NimblePublisher",
       description:
         "A minimal filesystem-based publishing engine with Markdown support and code highlighting",
@@ -26,8 +26,8 @@ defmodule NimblePublisher.MixProject do
 
   defp deps do
     [
-      {:earmark, "~> 1.4"},
-      {:makeup, "~> 1.0"},
+      {:mdex_native, "~> 0.1"},
+      {:makeup, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.21", only: :docs},
       {:makeup_elixir, ">= 0.0.0", only: [:test, :docs]}
     ]
