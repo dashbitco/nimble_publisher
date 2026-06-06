@@ -57,7 +57,9 @@ defmodule NimblePublisherTest do
         build: Builder,
         from: "test/fixtures/comrak_options.markdown",
         as: :examples,
-        comrak_options: [extension: [tasklist: true, autolink: false, header_id_prefix: "example-"]]
+        comrak_options: [
+          extension: [tasklist: true, autolink: false, header_id_prefix: "example-"]
+        ]
 
       html = hd(@examples).body
 
