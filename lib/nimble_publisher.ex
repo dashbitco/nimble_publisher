@@ -139,14 +139,12 @@ defmodule NimblePublisher do
   end
 
   defp convert_body(_path, extname, body, opts) when extname in [".md", ".markdown", ".livemd"] do
-    mdex_options = Keyword.get(opts, :mdex_options, [])
+    comrak_options = Keyword.get(opts, :comrak_options, [])
+    html = MDExNative.Comrak.markdown_to_html(body, comrak_options)
 
-    if Keyword.get(opts, :highlighters) do
-      body
-      |> MDEx.to_html!(Keyword.put(mdex_options, :syntax_highlight, nil))
-      |> highlight()
-    else
-      MDEx.to_html!(body, mdex_options)
+    case Keyword.get(opts, :highlighters, []) do
+      [] -> html
+      [_ | _] -> highlight(html)
     end
   end
 

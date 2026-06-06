@@ -5,6 +5,7 @@ defmodule NimblePublisher.Highlighter do
   Highlights all code block in an already generated HTML document.
   """
 
+  @compile {:no_warn_undefined, Makeup}
   @default_regex ~r/<pre><code(?:\s+class="([^"\s]*)")?>([^<]*)<\/code><\/pre>/
 
   def highlight(html, options \\ []) do

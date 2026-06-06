@@ -51,6 +51,26 @@ defmodule NimblePublisherTest do
     end
   end
 
+  test "converts markdown with custom comrak options" do
+    defmodule ComrakOptionsExample do
+      use NimblePublisher,
+        build: Builder,
+        from: "test/fixtures/comrak_options.markdown",
+        as: :examples,
+        comrak_options: [extension: [tasklist: true, autolink: true, header_id_prefix: "example-"]]
+
+      html = hd(@examples).body
+
+      assert html =~ ~s(id="example-project-tasks")
+      assert html =~ ~s(>Project Tasks</h1>)
+      assert html =~ ~s(<input type="checkbox" checked="" disabled="" />)
+      assert html =~ ~s(<input type="checkbox" disabled="" />)
+
+      assert html =~
+               ~s(<a href="https://github.com/leandrocp/mdex_native">https://github.com/leandrocp/mdex_native</a>)
+    end
+  end
+
   test "does not convert other extensions" do
     defmodule Example do
       use NimblePublisher,
@@ -70,7 +90,6 @@ defmodule NimblePublisherTest do
       use NimblePublisher,
         build: Builder,
         from: "test/fixtures/nosyntax.md",
-        mdex_options: [syntax_highlight: nil],
         as: :examples
 
       assert hd(@examples).attrs == %{syntax: "nohighlight"}
@@ -238,21 +257,23 @@ defmodule NimblePublisherTest do
              ~r/expected attributes for \"test\/fixtures\/invalid.nomap\" to return a map/
   end
 
-  test "highlights code blocks" do
-    input = "<pre><code class=\"elixir\">IO.puts(\"Hello World\")</code></pre>"
-    output = NimblePublisher.highlight(input)
-    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">IO"
-  end
+  describe "highlight/1" do
+    test "highlights code blocks" do
+      input = "<pre><code class=\"elixir\">IO.puts(\"Hello World\")</code></pre>"
+      output = NimblePublisher.highlight(input)
+      assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">IO"
+    end
 
-  test "highlights code blocks with custom regex" do
-    input = "<code lang=\"elixir\">IO.puts(\"Hello World\")</code>"
+    test "highlights code blocks with custom regex" do
+      input = "<code lang=\"elixir\">IO.puts(\"Hello World\")</code>"
 
-    output =
-      NimblePublisher.highlight(
-        input,
-        regex: ~r/<code(?:\s+lang="(\w*)")?>([^<]*)<\/code>/
-      )
+      output =
+        NimblePublisher.highlight(
+          input,
+          regex: ~r/<code(?:\s+lang="(\w*)")?>([^<]*)<\/code>/
+        )
 
-    assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
+      assert output =~ "<pre><code class=\"makeup elixir\"><span class=\"nc\">"
+    end
   end
 end

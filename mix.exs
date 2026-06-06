@@ -26,7 +26,7 @@ defmodule NimblePublisher.MixProject do
 
   defp deps do
     [
-      {:mdex, "~> 0.12"},
+      {:mdex_native, "~> 0.1"},
       {:makeup, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.21", only: :docs},
       {:makeup_elixir, ">= 0.0.0", only: [:test, :docs]}

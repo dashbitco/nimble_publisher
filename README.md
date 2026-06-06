@@ -45,15 +45,15 @@ Each article in the articles directory must have the format:
 
   * `:as` - the name of the module attribute to store all built entries
 
-  * `:mdex_options` - a keyword list of options accepted by [`MDEx.to_html!`](https://mdex.hexdocs.pm/MDEx.html#to_html!/2)
+  * `:comrak_options` - a keyword list of options accepted by
+    [`MDExNative.Comrak.markdown_to_html`](https://mdex-native.hexdocs.pm/MDExNative.Comrak.html#markdown_to_html/2)
+    to customize Markdown rendering
 
-  * `:highlighters` - by default, `NimblePublisher` [uses `MDEx`'s default
-    syntax highlighter](https://mdex.hexdocs.pm/syntax_highlight.html) which
-    you may also customize via the `:mdex_options` option above. Alternatively,
-    you can use Elixir's `Makeup` for syntax highlighting by setting this option.
-    When doing so, you will need to add its `.css` classes to your website.
-    You can generate them by calling `Makeup.stylesheet(:vim_style, "makeup")`
-    inside `iex -S mix`. You can replace `:vim_style` by [any style of your
+  * `:highlighters` - which code highlighters to use. `NimblePublisher`
+    uses `Makeup` for syntax highlighting and you will need to add its
+    `.css` classes. You can generate the CSS classes by calling
+    `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
+    You can replace `:vim_style` by [any style of your
     choice](https://elixir-makeup.github.io/makeup_demo/elixir.html).
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
@@ -203,8 +203,7 @@ It must return:
 
 You can also define a custom HTML converter that will be used to convert the
 file body (typically Markdown) into HTML. For example, you may wish to use an
-alternative Markdown parser such as [md](https://github.com/am-kantox/md).
-If you want to use the built-in highlighting, you need to call it manually.
+alternative Markdown parser such as [MDex](https://mdex.hexdocs.pm):
 
 ```elixir
   use NimblePublisher,
@@ -216,9 +215,11 @@ If you want to use the built-in highlighting, you need to call it manually.
 ```elixir
 defmodule MarkdownConverter do
   def convert(filepath, body, _attrs, opts) do
-    if Path.extname(filepath) in [".md", ".markdown"] do
-      highlighters = Keyword.get(opts, :highlighters, [])
-      body |> Md.generate() |> NimblePublisher.highlight(highlighters)
+    if Path.extname(filepath) in ~w(.markdown .md .livemd) do
+      # MDEx has its own syntax highlighter. If your markdown converter
+      # does not have one or you want to use NimblePublisher's built-in,
+      # call `NimblePublisher.highlight(html)` after conversion.
+      MDEx.to_html!(body)
     end
   end
 end
