@@ -49,7 +49,7 @@ Each article in the articles directory must have the format:
     [`MDExNative.Comrak.markdown_to_html`](https://mdex-native.hexdocs.pm/MDExNative.Comrak.html#markdown_to_html/2)
     to customize Markdown rendering. The default options enable GitHub
     Flavored Markdown and assume you are rendering trusted content,
-    as NimblePublisher is designed to render your own content:
+    as `NimblePublisher` is designed to render your own articles:
 
     ```elixir
     [
@@ -58,12 +58,8 @@ Each article in the articles directory must have the format:
     ]
     ```
 
-  * `:highlighters` - which code highlighters to use. `NimblePublisher`
-    uses `Makeup` for syntax highlighting and you will need to add its
-    `.css` classes. You can generate the CSS classes by calling
-    `Makeup.stylesheet(:vim_style, "makeup")` inside `iex -S mix`.
-    You can replace `:vim_style` by [any style of your
-    choice](https://elixir-makeup.github.io/makeup_demo/elixir.html).
+  * `:highlighters` - which `Makeup` syntax highlighters to use.
+    See "Syntax highlighting" section below for more information.
 
   * `:parser` - custom module with a `parse/2` function that receives the file path
     and content as params. See [Custom parser](#module-custom-parser) for more details.
@@ -79,9 +75,7 @@ the desired highlighters as a dependency:
 
     def deps do
       [
-        {:nimble_publisher, "~> 1.0", runtime: false},
-        {:makeup_elixir, ">= 0.0.0", runtime: false},
-        {:makeup_erlang, ">= 0.0.0", runtime: false}
+        {:nimble_publisher, "~> 1.0", runtime: false}
       ]
     end
 
@@ -129,8 +123,7 @@ defmodule MyApp.Blog do
   use NimblePublisher,
     build: Post,
     from: Application.app_dir(:my_app, "priv/posts/**/*.md"),
-    as: :posts,
-    highlighters: [:makeup_elixir, :makeup_erlang]
+    as: :posts
 
   # The @posts variable is first defined by NimblePublisher.
   # Let's further modify it by sorting all posts by descending date.
@@ -185,6 +178,83 @@ def get_posts_by_tag!(tag) do
 end
 ```
 
+## Syntax highlighting
+
+You have three options for Syntax Highlighting with NimblePublisher.
+
+### Makeup
+
+[Makeup](https://github.com/elixir-makeup/makeup) is a pure-Elixir
+syntax highlighter. To enable it, first add the desired language
+highlighters to your `mix.exs` `deps`:
+
+```elixir
+{:makeup_elixir, ">= 0.0.0", runtime: false},
+{:makeup_erlang, ">= 0.0.0", runtime: false}
+```
+
+Then pass the apps above under the :highlighters option when calling
+`use NimblePublisher`:
+
+```elixir
+use NimblePublisher,
+  build: Post,
+  highlighters: [:makeup_elixir, :makeup_erlang]
+```
+
+Makeup supports [several themes](https://elixir-makeup.github.io/makeup_demo/elixir.html).
+Once you pick your favorite, start `iex -S mix`, and run `Makeup.stylesheet(:vim_style, "makeup")`
+with the name of your theme as first argument. Then inject the outputted CSS as part of
+your website CSS.
+
+### Syntect
+
+Syntect is a Rust syntax highlighter that is optionally embedded as part of `MDExNative`
+and uses TextMate-style syntax definitions. It is weights approximately 3MB.
+
+To use it, first add `config :mdex_native, syntax_highlighter: :syntect` to
+your `config/config.exs`. Then configure `NimblePublisher` to use it:
+
+```elixir
+  use NimblePublisher,
+    build: Blog.Post,
+    comrak_options: [
+      syntax_highlight: [
+        engine: :syntect,
+        opts: [theme: "TwoDark"]
+      ]
+    ]
+```
+
+See [MDExNative docs](https://mdex-native.hexdocs.pm/syntax_highlighting.html) for
+more information.
+
+### Lumis
+
+Lumis is a Rust syntax highlighter that is optionally embedded as part of `MDExNative`
+and uses TreeSitter syntax definitions. It is weights approximately 15MB.
+
+To use it, first add `config :mdex_native, syntax_highlighter: :lumis` to
+your `config/config.exs`. Then configure `NimblePublisher` to use it:
+
+```elixir
+  use NimblePublisher,
+    build: Blog.Post,
+    comrak_options: [
+      syntax_highlight: [
+        engine: :lumis,
+        opts: [
+          formatter: {:html_inline, theme: "catppuccin_macchiato"}
+        ]
+      ]
+    ]
+```
+
+See [MDExNative docs](https://mdex-native.hexdocs.pm/syntax_highlighting.html) for
+more information.
+
+## Customization
+
 ### Custom parser
 
 You may want to define a custom function to parse the content of your files.
@@ -238,7 +308,7 @@ The `convert/4` function from this module receives an extension name, a body,
 the parsed attributes from the file, and the options passed to
 `NimblePublisher`. It must return the converted body as a string.
 
-### Live reloading
+## Live reloading
 
 If you are using Phoenix, you can enable live reloading by simply telling Phoenix to watch the “posts” directory. Open up "config/dev.exs", search for `live_reload:` and add this to the list of patterns:
 
