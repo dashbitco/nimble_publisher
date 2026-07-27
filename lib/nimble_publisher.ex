@@ -38,21 +38,33 @@ defmodule NimblePublisher do
     parser = Keyword.get(opts, :parser)
     converter = Keyword.get(opts, :html_converter)
 
-    Code.ensure_compiled(builder)
-    parser && Code.ensure_compiled(parser)
-    converter && Code.ensure_compiled(converter)
+    Code.ensure_compiled!(builder)
+    parser && Code.ensure_compiled!(parser)
+    converter && Code.ensure_compiled!(converter)
 
     entries =
-      Enum.flat_map(
-        paths,
-        fn path ->
-          parsed_contents = parse_contents!(path, File.read!(path), parser)
-          build_entry(builder, converter, path, parsed_contents, opts)
-        end
-      )
+      flat_pmap(paths, fn path ->
+        parsed_contents = parse_contents!(path, File.read!(path), parser)
+        build_entry(builder, converter, path, parsed_contents, opts)
+      end)
 
     Module.put_attribute(module, as, entries)
     {from, paths}
+  end
+
+  defp flat_pmap(collection, callback) do
+    if Code.can_await_module_compilation?() do
+      collection
+      |> Kernel.ParallelCompiler.pmap(callback)
+      |> Enum.concat()
+    else
+      collection
+      |> Task.async_stream(callback, timeout: :infinity)
+      |> Enum.flat_map(fn
+        {:ok, results} -> results
+        _ -> []
+      end)
+    end
   end
 
   @doc """

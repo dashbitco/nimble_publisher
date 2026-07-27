@@ -1,15 +1,16 @@
 defmodule NimblePublisher.MixProject do
   use Mix.Project
 
-  @version "2.0.1"
+  @version "2.1.0-dev"
   @url "https://github.com/dashbitco/nimble_publisher"
 
   def project do
     [
       app: :nimble_publisher,
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.16",
       name: "NimblePublisher",
+      elixirc_paths: if(Mix.env() == :test, do: ["lib", "test"], else: ["lib"]),
       description:
         "A minimal filesystem-based publishing engine with Markdown support and syntax highlighting",
       deps: deps(),

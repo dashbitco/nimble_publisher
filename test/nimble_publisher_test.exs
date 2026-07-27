@@ -2,13 +2,6 @@ defmodule NimblePublisherTest do
   use ExUnit.Case, async: true
 
   doctest NimblePublisher
-
-  defmodule Builder do
-    def build(filename, attrs, body) do
-      %{filename: filename, attrs: attrs, body: body}
-    end
-  end
-
   alias NimblePublisherTest.Example
 
   setup do
@@ -16,6 +9,18 @@ defmodule NimblePublisherTest do
     :code.purge(Example)
     :code.delete(Example)
     :ok
+  end
+
+  test "builds all matching entries at compile-time" do
+    assert [
+             %{filename: "crlf.md"},
+             %{filename: "markdown.md"},
+             %{filename: "nosyntax.md"},
+             %{filename: "syntax.md"}
+           ] =
+             CompileExample.examples()
+             |> update_in([Access.all(), :filename], &Path.basename/1)
+             |> Enum.sort_by(& &1.filename)
   end
 
   test "builds all matching entries" do
