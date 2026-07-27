@@ -1,7 +1,7 @@
 defmodule NimblePublisher.MixProject do
   use Mix.Project
 
-  @version "2.1.0-dev"
+  @version "2.1.0"
   @url "https://github.com/dashbitco/nimble_publisher"
 
   def project do

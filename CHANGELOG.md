@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.1.0 (2026-07-27)
+
+  * Enable parallel compilation
+  * Require Elixir v1.16+
+
 ## v2.0.1 (2026-07-27)
 
   * Fix compile-time warning when Makeup is optional
