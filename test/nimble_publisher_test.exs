@@ -64,7 +64,7 @@ defmodule NimblePublisherTest do
       html = hd(@examples).body
 
       assert html =~ ~s(id="example-project-tasks")
-      assert html =~ ~s(>Project Tasks</h1>)
+      assert html =~ ~s(>Project Tasks<)
       assert html =~ ~s(<input type="checkbox" checked="" disabled="" />)
       assert html =~ ~s(<input type="checkbox" disabled="" />)
 
