@@ -43,18 +43,13 @@ defmodule NimblePublisher do
     converter && Code.ensure_compiled(converter)
 
     entries =
-      paths
-      |> Task.async_stream(
+      Enum.flat_map(
+        paths,
         fn path ->
           parsed_contents = parse_contents!(path, File.read!(path), parser)
           build_entry(builder, converter, path, parsed_contents, opts)
-        end,
-        timeout: :infinity
+        end
       )
-      |> Enum.flat_map(fn
-        {:ok, results} -> results
-        _ -> []
-      end)
 
     Module.put_attribute(module, as, entries)
     {from, paths}
