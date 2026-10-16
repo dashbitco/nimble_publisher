@@ -40,8 +40,8 @@ Each article in the articles directory must have the format:
   * `:build` - the name of the module that will build each entry
 
   * `:from` - a wildcard pattern where to find all entries. Files with the
-    `.md` or `.markdown` extension will be converted to HTML with
-    `Earmark`. Other files will be kept as is.
+    `.md`, `.markdown`, or `.livemd` extension will be converted to HTML with
+    `MDExNative`. Other files will be kept as is.
 
   * `:as` - the name of the module attribute to store all built entries
 
@@ -65,7 +65,7 @@ Each article in the articles directory must have the format:
     and content as params. See [Custom parser](#module-custom-parser) for more details.
 
   * `:html_converter` - custom module with a `convert/4` function that receives the
-    extension, body, and attributes of the markdown file, as well as all options
+    file path, body, and attributes of the markdown file, as well as all options
     as params. See [Custom HTML converter](#module-custom-html-converter) for more details.
 
 ## Examples
@@ -75,7 +75,7 @@ the desired highlighters as a dependency:
 
     def deps do
       [
-        {:nimble_publisher, "~> 1.0", runtime: false}
+        {:nimble_publisher, "~> 2.1", runtime: false}
       ]
     end
 
@@ -304,7 +304,7 @@ defmodule MarkdownConverter do
 end
 ```
 
-The `convert/4` function from this module receives an extension name, a body,
+The `convert/4` function from this module receives a file path, a body,
 the parsed attributes from the file, and the options passed to
 `NimblePublisher`. It must return the converted body as a string.
 
