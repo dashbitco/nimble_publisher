@@ -1,7 +1,7 @@
 defmodule NimblePublisher.MixProject do
   use Mix.Project
 
-  @version "2.1.0"
+  @version "2.2.0"
   @url "https://github.com/dashbitco/nimble_publisher"
 
   def project do
@@ -27,7 +27,7 @@ defmodule NimblePublisher.MixProject do
 
   defp deps do
     [
-      {:mdex_native, "~> 0.1"},
+      {:mdex_native, "~> 0.3"},
       {:makeup, "~> 1.0", optional: true},
       {:ex_doc, "~> 0.21", only: :docs},
       {:makeup_elixir, ">= 0.0.0", only: [:test, :docs]}

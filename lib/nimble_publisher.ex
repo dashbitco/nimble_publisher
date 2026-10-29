@@ -155,7 +155,7 @@ defmodule NimblePublisher do
         Keyword.get(opts, :comrak_options, [])
       )
 
-    html = MDExNative.Comrak.markdown_to_html(body, comrak_options)
+    html = MDExNative.Comrak.markdown_to_html!(body, comrak_options)
 
     case Keyword.get(opts, :highlighters, []) do
       [] -> html

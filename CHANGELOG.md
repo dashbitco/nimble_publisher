@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v2.2.0 (2026-10-29)
+
+  * Require MDExNative ~> 0.3
+
 ## v2.1.0 (2026-07-27)
 
   * Enable parallel compilation
